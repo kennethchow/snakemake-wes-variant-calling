@@ -1,0 +1,72 @@
+### WES SOMATIC VARIANT CALLING CONFIGFILE ###
+
+# somatic mode runs the given variant callers, map_only allows simple preprocessing of fastqs to analysis ready bams
+mode: 'somatic' # 'somatic' or 'map_only'
+
+# define your paths to working directory components and refernece files
+paths:
+  samples: "samples.tsv"
+  data_dir: "rawdata"
+  results_dir: "results"
+  java_tmp_dir: "tmp"
+  input_known_vcf: "/data2/kchow/references/vcf/"
+  bwa_index: "/data/references/human_ref/hg38/index/bwa"
+  genome_fasta: "/data2/kchow/references/fa/resources_broad_hg38_v0_Homo_sapiens_assembly38.fasta"
+
+# mem and cpu resources
+resources:
+  mem:
+    bwaindex: 101000
+    manta: 4
+    strelka: 4
+    lancet: 40
+    vcf2maf: 80
+    applybqr: 16
+  threads:
+    trim-galore: 8
+    bwa_mem: 8
+    samtools_index: 8
+    fastqc_raw: 8
+    fastqc_trimmed: 8
+    bwaindex: 16
+    manta: 8
+    strelka: 8
+    lancet: 4
+    vcf2maf: 4
+
+# reference vcfs and interval bed files
+references:
+  known_variants:
+    gnomad: "/data/references/human_ref/hg38/variation/gnomad/v4/gnomad.afonly.vcf.gz"
+    vep: "/data/references/human_ref/hg38/annotation/vep"
+  bed: "/data2/kchow/references/bed/twist_custom_hg38_annlee.bed"
+
+# resource params for java (gatk) applications
+java_params:
+  gc-threads: 2
+  mem:
+    getpileup: 20
+    mutect: 16
+    learn_read_orientation: 16
+    calculate_contamination: 8
+    filter_mutect_calls: 16
+  ncpu:
+    getpileup: 1
+    mutect: 4
+    learn_read_orientation: 4
+    calculate_contamination: 2
+    filter_mutect_calls: 2
+
+# application specific parameters
+params:
+  bwa-mem:
+    block_size: 500000000
+  gatk:
+    BaseRecalibrator: ""
+    region-padding: 100
+  multiqc: "--interactive"
+  mutect2:
+    lod: 5.0
+  picard_MarkDuplicates: "REMOVE_DUPLICATES=true ASSUME_SORTED=true CREATE_INDEX=true"
+  samtools_index: ""
+  trim-galore: "--quality 20 --stringency 3 --e 0.1 --length 40 --phred33"
